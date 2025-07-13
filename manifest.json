@@ -1,32 +1,42 @@
 {
-  "manifest_version": 3,
-  "name": "TweetBoost – AI Tweet Enhancer",
-  "version": "1.0.0",
-  "description": "Suggests funnier, more savage, and more intellectual versions of your tweet using Gemini AI.",
-  "icons": {
-    "128": "icons/twitter.png"
-  },
-  "permissions": [
-    "storage",
-    "scripting",
-    "activeTab"
-  ],
-  "host_permissions": [
-    "https://generativelanguage.googleapis.com/*"
-  ],
-  "background": {
-    "service_worker": "background.js"
-  },
-  "action": {
-    "default_popup": "popup/popup.html",
-    "default_icon": "icons/twitter.png"
-  },
-  "options_page": "options/options.html",
-  "content_scripts": [
-    {
-      "matches": ["https://twitter.com/*"],
-      "js": ["content/content.js"],
-      "css": ["content/content.css"]
-    }
-  ]
-} 
+    "manifest_version": 3,
+    "name": "TweetDost – AI Tweet Reply Generator",
+    "version": "1.0.0",
+    "description": "Analyzes tweets and generates replies in different moods (savage, angry, happy) using Gemini AI with screenshot cropping feature.",
+    "icons": {
+      "128": "icons/twitter.png"
+    },
+    "permissions": [
+      "storage",
+      "scripting",
+      "activeTab",
+      "tabs",
+      "desktopCapture"
+    ],
+    "host_permissions": [
+      "https://generativelanguage.googleapis.com/*",
+      "https://twitter.com/*",
+      "https://x.com/*"
+    ],
+    "background": {
+      "service_worker": "background.js"
+    },
+    "action": {
+      "default_popup": "popup/popup.html",
+      "default_icon": "icons/twitter.png"
+    },
+    "options_page": "options/options.html",
+    "content_scripts": [
+      {
+        "matches": ["https://twitter.com/*", "https://x.com/*"],
+        "js": ["content/content.js"],
+        "css": ["content/content.css"]
+      }
+    ],
+    "web_accessible_resources": [
+      {
+        "resources": ["crop-overlay.html"],
+        "matches": ["https://twitter.com/*", "https://x.com/*"]
+      }
+    ]
+  }
