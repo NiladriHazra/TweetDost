@@ -1,0 +1,6 @@
+.tweetboost-btn {
+  transition: background 0.2s;
+}
+.tweetboost-btn:hover {
+  background: #0d8ddb !important;
+} 
