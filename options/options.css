@@ -100,6 +100,59 @@ h2 {
   font-style: italic;
 }
 
+/* Attribution - Made by */
+.attribution {
+  position: fixed;
+  top: 25px;
+  right: 35px;
+  z-index: 10;
+
+  /* Glassmorphism */
+  background: rgba(30, 30, 30, 0.6);
+  backdrop-filter: blur(10px) saturate(150%);
+  -webkit-backdrop-filter: blur(10px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px; /* pill shape */
+  padding: 8px 15px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+
+  /* Flex layout */
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  /* Text */
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 1em;
+  font-weight: 500;
+  
+  transition: all 0.3s ease;
+}
+
+.attribution:hover {
+  background: rgba(40, 40, 40, 0.8);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.5);
+  transform: translateY(-2px);
+}
+
+.twitter-link {
+  color: rgba(255, 255, 255, 0.8);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: color 0.3s ease;
+}
+
+.twitter-link:hover {
+  color: #1DA1F2;
+}
+
+.twitter-logo {
+  width: 16px;
+  height: 16px;
+}
+
 #apiKeyInput:focus {
   border: 1px solid rgba(120, 119, 198, 0.6);
   box-shadow: 

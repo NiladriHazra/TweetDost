@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TweetBoost</title>
+  <title>TweetDost</title>
   <link rel="stylesheet" href="popup.css">
   <style>
-    /* Additional inline styles for enhanced liquid glass effect */
+    
     body {
       background: 
         radial-gradient(circle at 20% 80%, rgba(29, 161, 242, 0.05) 0%, transparent 50%),
@@ -35,7 +35,7 @@
       }
     }
 
-    /* Floating particles effect */
+    
     .particles {
       position: fixed;
       top: 0;
@@ -66,7 +66,7 @@
       }
     }
 
-    /* Glow effect for focus states */
+   
     .glow {
       position: relative;
     }
@@ -99,7 +99,13 @@
     <div class="particles" id="particles"></div>
 
     <div class="container">
-        <h1><span role="img" aria-label="rocket">🚀</span> TweetBoost</h1>
+        <div class="github-link-container">
+            <a href="https://github.com/NiladriHazra/TweetDost" target="_blank" class="github-link">
+                <img src="../icons/github.png" alt="GitHub" class="github-logo">
+                Star the Github Repo
+            </a>
+        </div>
+        <h1><span role="img" aria-label="rocket">🚀</span> TweetDost</h1>
 
         <div id="apiKeyMessage" class="api-key-message" style="display: none;">
             Please <a href="../options/options.html" target="_blank">set your Gemini API key</a> to start generating tweets.
