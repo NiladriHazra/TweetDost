@@ -103,7 +103,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Helper functions
     function showLoading(isLoading) {
         if (isLoading) {
-            suggestionsDiv.innerHTML = '<div class="loading-indicator"></div>';
+            suggestionsDiv.innerHTML = `<div class="loading-indicator"></div>`;
             container.classList.add('expanded');
         } 
         enhanceBtn.disabled = isLoading;
