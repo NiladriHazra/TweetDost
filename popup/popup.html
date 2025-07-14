@@ -5,19 +5,128 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TweetBoost</title>
   <link rel="stylesheet" href="popup.css">
+  <style>
+    /* Additional inline styles for enhanced liquid glass effect */
+    body {
+      background: 
+        radial-gradient(circle at 20% 80%, rgba(29, 161, 242, 0.05) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(0, 172, 238, 0.05) 0%, transparent 50%),
+        radial-gradient(circle at 40% 40%, rgba(29, 161, 242, 0.03) 0%, transparent 50%),
+        linear-gradient(135deg, #0a0a0f 0%, #141419 100%);
+      min-height: 100vh;
+      margin: 0;
+      padding: 10px;
+      box-sizing: border-box;
+    }
+
+    .container {
+      position: relative;
+      animation: slideIn 0.5s ease-out;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Floating particles effect */
+    .particles {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .particle {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      background: rgba(29, 161, 242, 0.3);
+      border-radius: 50%;
+      animation: float 6s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% {
+        transform: translateY(0px) rotate(0deg);
+        opacity: 0.3;
+      }
+      50% {
+        transform: translateY(-20px) rotate(180deg);
+        opacity: 0.8;
+      }
+    }
+
+    /* Glow effect for focus states */
+    .glow {
+      position: relative;
+    }
+
+    .glow::before {
+      content: '';
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      right: -2px;
+      bottom: -2px;
+      background: linear-gradient(45deg, 
+        rgba(29, 161, 242, 0.3), 
+        rgba(0, 172, 238, 0.3),
+        rgba(29, 161, 242, 0.3)
+      );
+      border-radius: 12px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      z-index: -1;
+      filter: blur(5px);
+    }
+
+    .glow:hover::before {
+      opacity: 1;
+    }
+  </style>
 </head>
 <body>
-  <div class="container">
-    <h1>TweetBoost</h1>
-    <textarea id="tweetInput" placeholder="Write your tweet..."></textarea>
-    <button id="enhanceBtn">Enhance Tweet</button>
-    <div id="suggestions" class="suggestions">
-      <!-- Suggestions will appear here -->
+    <div class="particles" id="particles"></div>
+
+    <div class="container">
+        <h1><span role="img" aria-label="rocket">🚀</span> TweetBoost</h1>
+
+        <div id="apiKeyMessage" class="api-key-message" style="display: none;">
+            Please <a href="../options/options.html" target="_blank">set your Gemini API key</a> to start generating tweets.
+        </div>
+
+        <div class="input-wrapper">
+            <textarea id="tweetInput" placeholder="✨ Write your tweet and watch the magic happen..." maxlength="400"></textarea>
+            <div class="character-count" id="charCount">0/400</div>
+        </div>
+
+        <div id="imagePreviewContainer" style="display: none;">
+            <img id="imagePreview" alt="Cropped image preview"/>
+            <button id="removeImageBtn" title="Remove image">&times;</button>
+        </div>
+
+        <div class="button-wrapper">
+            <button id="enhanceBtn" class="glow">✨ Enhance Tweet</button>
+            <button id="cropBtn" class="glow">✂️</button>
+        </div>
+
+        <div id="suggestions"></div>
+
+        <div class="settings-link">
+            <a href="../options/options.html" target="_blank">⚙️ Settings</a>
+        </div>
     </div>
-    <div class="settings-link">
-      <a href="../options/options.html" target="_blank">Set Gemini API Key</a>
-    </div>
-  </div>
-  <script src="popup.js"></script>
+
+    <script src="popup.js"></script>
 </body>
-</html> 
+</html>

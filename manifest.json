@@ -11,7 +11,8 @@
       "scripting",
       "activeTab",
       "tabs",
-      "desktopCapture"
+      "desktopCapture",
+      "clipboardWrite"
     ],
     "host_permissions": [
       "https://generativelanguage.googleapis.com/*",
@@ -28,15 +29,12 @@
     "options_page": "options/options.html",
     "content_scripts": [
       {
-        "matches": ["https://twitter.com/*", "https://x.com/*"],
+        "matches": [
+          "https://twitter.com/*",
+          "https://x.com/*"
+        ],
         "js": ["content/content.js"],
         "css": ["content/content.css"]
-      }
-    ],
-    "web_accessible_resources": [
-      {
-        "resources": ["crop-overlay.html"],
-        "matches": ["https://twitter.com/*", "https://x.com/*"]
       }
     ]
   }

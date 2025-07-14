@@ -41,54 +41,65 @@ function findTweetElements() {
 }
 
 function addTweetDostButtons() {
-  if (!isTwitter) return;
-  
-  const tweets = findTweetElements();
-  
-  tweets.forEach(tweet => {
-    if (tweet.querySelector('.tweetdost-btn')) return;
-    
-    const tweetText = extractTweetText(tweet);
-    if (!tweetText) return;
-    
-    const btn = document.createElement('button');
-    btn.textContent = '💬 Reply';
-    btn.className = 'tweetdost-btn';
-    btn.title = 'Generate AI reply with TweetDost';
-    
-    btn.onclick = (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      
-      currentTweetText = tweetText;
-      chrome.runtime.sendMessage({
-        action: 'analyzeTweet',
-        tweetText: tweetText
-      });
-    };
-    
-    // Find reply button container and add our button
-    const replyContainer = tweet.querySelector('[data-testid="reply"]')?.closest('div[role="group"]');
-    if (replyContainer) {
-      replyContainer.appendChild(btn);
-    }
-  });
+    if (!isTwitter) return;
+
+    const tweets = findTweetElements();
+
+    tweets.forEach(tweet => {
+        if (tweet.querySelector('.tweetdost-btn')) return;
+
+        const tweetText = extractTweetText(tweet);
+        if (!tweetText) return;
+
+        const replyButton = tweet.querySelector('[data-testid="reply"]');
+        if (!replyButton) return;
+
+        const btn = document.createElement('button');
+        btn.innerHTML = '✨'; 
+        btn.className = 'tweetdost-btn';
+        btn.title = 'Enhance with TweetBoost';
+
+        btn.onclick = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            currentTweetText = tweetText;
+
+            // Send message to background to open popup and pass tweet text
+            chrome.runtime.sendMessage({ 
+                action: 'openPopupWithTweet', 
+                tweetText: tweetText 
+            });
+        };
+
+        replyButton.parentNode.insertBefore(btn, replyButton.nextSibling);
+    });
 }
 
-function addFloatingButton() {
-  if (document.querySelector('.tweetdost-floating-btn')) return;
+function showNotification(message) {
+  let notification = document.querySelector('.tweetdost-notification');
+  if (notification) {
+    notification.remove();
+  }
+
+  notification = document.createElement('div');
+  notification.className = 'tweetdost-notification';
+  notification.textContent = message;
   
-  const floatingBtn = document.createElement('button');
-  floatingBtn.textContent = '✂️';
-  floatingBtn.className = 'tweetdost-floating-btn';
-  floatingBtn.title = 'Crop and analyze tweet';
+  document.body.appendChild(notification);
   
-  floatingBtn.onclick = () => {
-    chrome.runtime.sendMessage({ action: 'openCropOverlay' });
-  };
-  
-  document.body.appendChild(floatingBtn);
+  setTimeout(() => {
+    notification.classList.add('show');
+  }, 10);
+
+  setTimeout(() => {
+    notification.classList.remove('show');
+    setTimeout(() => {
+      if (notification) notification.remove();
+    }, 500); // Match fade-out duration
+  }, 2500); // Show for 2.5 seconds
 }
+
+
 
 function getTweetFromCompose() {
   const composeSelectors = [
@@ -110,6 +121,11 @@ function getTweetFromCompose() {
 
 // Listen for messages from popup
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    if (request.action === 'pasteSuggestion') {
+    pasteTextIntoReplyBox(request.text);
+    sendResponse({ success: true });
+  }
+
   if (request.action === 'getCurrentTweet') {
     const composeTweet = getTweetFromCompose();
     sendResponse({ 
@@ -118,50 +134,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     });
   }
   
-  if (request.action === 'cropSelected') {
-    // Handle crop selection
-    setTimeout(() => {
-      chrome.runtime.sendMessage({
-        action: 'captureTab'
-      }, (response) => {
-        if (response.success) {
-          // Process the cropped image
-          const canvas = document.createElement('canvas');
-          const ctx = canvas.getContext('2d');
-          const img = new Image();
-          
-          img.onload = () => {
-            const coords = request.coords;
-            canvas.width = coords.width;
-            canvas.height = coords.height;
-            
-            ctx.drawImage(
-              img,
-              coords.left,
-              coords.top,
-              coords.width,
-              coords.height,
-              0,
-              0,
-              coords.width,
-              coords.height
-            );
-            
-            const croppedDataUrl = canvas.toDataURL('image/png');
-            
-            // Send to popup for analysis
-            chrome.runtime.sendMessage({
-              action: 'analyzeCroppedImage',
-              imageData: croppedDataUrl,
-              coords: coords
-            });
-          };
-          
-          img.src = response.dataUrl;
-        }
-      });
-    }, 100);
-  }
+  
   
   return true;
 });
@@ -169,7 +142,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 // Initialize when page loads
 function init() {
   addTweetDostButtons();
-  addFloatingButton();
 }
 
 // Observe DOM changes
@@ -207,6 +179,39 @@ if (document.readyState === 'loading') {
 }
 
 // Re-initialize on navigation (for SPAs)
+function pasteTextIntoReplyBox(text) {
+    const pasteLogic = (editor) => {
+        editor.focus();
+        // This is a more robust way to insert text and trigger React's state update
+        document.execCommand('insertText', false, text);
+        showNotification('Pasted reply!');
+    };
+
+    // Twitter uses different text areas for the main composer and reply modals.
+    // We need to find the one that is currently visible.
+    const modalEditor = document.querySelector('div[data-testid="tweetTextarea_0_dialog"]');
+    const mainEditor = document.querySelector('div[data-testid="tweetTextarea_0"]');
+
+    // Check if the modal editor exists and is visible
+    if (modalEditor && (modalEditor.offsetWidth > 0 || modalEditor.offsetHeight > 0)) {
+        pasteLogic(modalEditor);
+    } 
+    // Otherwise, check if the main editor exists and is visible
+    else if (mainEditor && (mainEditor.offsetWidth > 0 || mainEditor.offsetHeight > 0)) {
+        pasteLogic(mainEditor);
+    } 
+    // As a final fallback, look for any focused textbox
+    else {
+        const focusedEditor = document.querySelector('[role="textbox"]:focus');
+        if (focusedEditor) {
+            pasteLogic(focusedEditor);
+        } else {
+            console.error('TweetBoost: Could not find an active and visible tweet composer.');
+            showNotification('Could not find a reply box. Please make sure it is open.');
+        }
+    }
+}
+
 let lastUrl = location.href;
 new MutationObserver(() => {
   const url = location.href;
