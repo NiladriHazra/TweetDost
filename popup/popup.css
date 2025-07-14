@@ -132,7 +132,7 @@ h1 {
 
 #imagePreview {
     width: 100%;
-    max-height: 150px;
+    max-height: 110px;
     border-radius: 12px;
     object-fit: cover;
 }

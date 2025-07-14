@@ -198,7 +198,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Match patterns like "1. Professional: ..." or "**Professional**: ..."
                 const match = line.match(/(?:\d+\.\s*)?(?:\*\*)?(\w+)(?:\*\*)?:\s*(.*)/);
                 if (match && match[1] && match[2]) {
-                    return { vibe: match[1], text: match[2].trim() };
+                    const cleanedText = match[2].trim().replace(/^\*{1,2}/, '').replace(/\*{1,2}$/,'').trim();
+                    return { vibe: match[1], text: cleanedText };
                 }
                 return null;
             })

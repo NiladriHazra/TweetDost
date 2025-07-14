@@ -46,13 +46,46 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
     // Handle request to capture the screen with given rectangle
     if (request.action === 'captureScreen') {
-        chrome.tabs.captureVisibleTab(null, { format: 'png' }, (dataUrl) => {
+        chrome.tabs.captureVisibleTab(null, { format: 'png' }, async (dataUrl) => {
             if (chrome.runtime.lastError || !dataUrl) {
                 sendResponse({ success: false, error: 'Failed to capture tab.' });
                 return;
             }
 
-            const { x, y, width, height } = request.rect;
+            try {
+                const { x, y, width, height } = request.rect;
+
+                // Convert the data URL to a blob
+                const response = await fetch(dataUrl);
+                const fullBlob = await response.blob();
+
+                // Create an ImageBitmap from the blob
+                const fullBitmap = await createImageBitmap(fullBlob);
+
+                // Crop the bitmap directly
+                const croppedBitmap = await createImageBitmap(fullBitmap, x, y, width, height);
+
+                // Draw the cropped bitmap onto an OffscreenCanvas
+                const canvas = new OffscreenCanvas(width, height);
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(croppedBitmap, 0, 0, width, height);
+
+                // Convert to blob and then Data URL
+                const croppedBlob = await canvas.convertToBlob({ type: 'image/png' });
+                const reader = new FileReader();
+
+                reader.onload = () => {
+                    croppedImageForPopup = reader.result;
+                    chrome.action.openPopup();
+                    sendResponse({ success: true });
+                };
+                reader.onerror = () => {
+                    sendResponse({ success: false, error: 'Failed to process cropped image.' });
+                };
+                reader.readAsDataURL(croppedBlob);
+            } catch (err) {
+                sendResponse({ success: false, error: err.toString() });
+            }
 
             // Create a new Image object to get dimensions
             const image = new Image();
