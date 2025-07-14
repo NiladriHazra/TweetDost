@@ -1,4 +1,4 @@
-# ✨ TweetDost - AI Tweet Reply Generator
+# TweetDost - Your Tweet Companion
 
 <p align="center">
   <em>Your smart companion for crafting the perfect tweet reply, powered by Google's Gemini AI.</em>
