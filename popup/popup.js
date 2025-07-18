@@ -160,25 +160,38 @@ document.addEventListener('DOMContentLoaded', () => {
         const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
         
         const vibes = ['Professional', 'Witty', 'Savage', 'Intellectual'];
-        const promptAction = text ? `for the tweet "${text}"` : "for the attached image";
-        const prompt = `Generate exactly 4 tweet suggestions, one for each of the following vibes: ${vibes.join(', ')}. The suggestions should be ${promptAction}. Format the output as a numbered list, with each item starting with the vibe, a colon, and then the suggestion. For example: '1. Professional: [suggestion]'`;
+        const promptContext = text ? `Respond to the following tweet:\n\"${text}\"` : "Respond to the attached image.";
+        const prompt = `${promptContext}\nGenerate exactly 4 reply tweets, one for each of the following vibes: ${vibes.join(', ')}. Each reply must embody the specified vibe while directly replying to the original content. Format the output as a numbered list where each item starts with the vibe, a colon, then the reply. Example: '1. Professional: [reply text]'`;
 
         let contents;
         if (imageData) {
             contents = [{
+                role: 'user',
                 parts: [
                     { text: prompt },
                     { inline_data: { mime_type: 'image/png', data: imageData.split(',')[1] } }
                 ]
             }];
         } else {
-            contents = [{ parts: [{ text: prompt }] }];
+            contents = [{ role: 'user', parts: [{ text: prompt }] }];
         }
 
-        const response = await chrome.runtime.sendMessage({ 
-            action: 'callGeminiApi', 
-            url, 
-            options: { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents }) }
+        const response = await new Promise((resolve, reject) => {
+            chrome.runtime.sendMessage({
+                action: 'callGeminiApi',
+                url,
+                options: {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contents })
+                }
+            }, (res) => {
+                if (chrome.runtime.lastError) {
+                    reject(new Error(chrome.runtime.lastError.message));
+                } else {
+                    resolve(res);
+                }
+            });
         });
 
         if (!response.success) {
